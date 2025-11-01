@@ -29,6 +29,7 @@ local function update_buffer_list(buf)
   vim.api.nvim_buf_set_option(buf, 'modifiable', true)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
   vim.api.nvim_buf_set_option(buf, 'modifiable', true) -- 保存後も編集可能にしておく
+  vim.api.nvim_buf_set_option(buf, 'modified', false) -- バッファ更新後にmodifiedフラグをリセット
 
   -- 現在のバッファ番号リストを保存
   vim.b[buf].bufman_buffers = current_buf_nrs
@@ -86,8 +87,7 @@ local function setup_autocmds(buf)
       -- bufmanウィンドウを更新
       update_buffer_list(args.buf)
 
-      -- 'modified'フラグをfalseに設定して保存済み状態にする
-      vim.api.nvim_buf_set_option(args.buf, 'modified', false)
+      -- modifiedフラグはupdate_buffer_listで設定されるため、ここでは不要
     end,
   })
 end
