@@ -37,10 +37,13 @@ local function update_buffer_list(buf)
 end
 
 function M.select_buffer()
+  local current_buf = vim.api.nvim_get_current_buf()
   local line = vim.api.nvim_get_current_line()
   -- パースする正規表現を更新
   local bufnr = tonumber(string.match(line, '^(%d+)%s'))
   if bufnr then
+    -- bufmanバッファの変更を破棄するため、modifiedフラグを強制的に下ろす
+    vim.api.nvim_buf_set_option(current_buf, 'modified', false)
     vim.api.nvim_set_current_buf(bufnr)
   end
 end
@@ -108,14 +111,13 @@ function M.open()
 
   -- 新しいバッファを作成
   local buf = vim.api.nvim_create_buf(false, false)
+  vim.api.nvim_set_option_value('buftype', 'acwrite', { buf = buf })
   vim.api.nvim_set_option_value('bufhidden', 'wipe', { buf = buf })
   vim.api.nvim_set_option_value('filetype', 'bufman', { buf = buf })
   vim.api.nvim_set_option_value('swapfile', false, { buf = buf })
 
   -- 現在のウィンドウを新しいバッファで開く
   vim.api.nvim_set_current_buf(buf)
-  -- ダミーのバッファ名を設定
-  vim.cmd('file bufman://buffers')
 
   -- conceal（隠蔽）オプションを設定
   local win = vim.api.nvim_get_current_win()
